@@ -1,0 +1,7 @@
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
+EMBEDDING_MODEL = "text-embedding-3-small"
+LLM_MODEL = "gpt-3.5-turbo"
+RETRIEVER_K = 5
+SIMILARITY_THRESHOLD = 0.7
+CHROMA_PERSIST_DIR = "./chroma_store"
