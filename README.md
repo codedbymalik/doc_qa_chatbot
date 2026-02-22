@@ -5,19 +5,29 @@ This app is a document question-answering chatbot built with Retrieval-Augmented
 - Python 3.10 or higher
 - An OpenAI API key with access to `text-embedding-3-small` and `gpt-3.5-turbo`
 
+## 3. Installation
+```bash
+git clone codedbymalik/doc_qa_chatbot
+cd doc_qa_chatbot
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env
+# Add your OpenAI API key to .env
+```
 
-
-## 3. Running the app
+## 4. Running the app
 ```bash
 streamlit run main.py
 ```
 
-## 4. Running tests
+
+## 5. Running tests
 ```bash
 pytest tests/ -v
 ```
 
-## 5. How it works
+## 6. How it works
 1. Upload: one or more PDF files are selected for processing.
 2. Chunk: extracted text is split into overlapping chunks for retrieval quality.
 3. Embed: each chunk is converted into a vector embedding.
@@ -25,7 +35,7 @@ pytest tests/ -v
 5. Retrieve: for each question, the most relevant chunks are fetched from the vector store.
 6. Generate: the LLM answers using retrieved context only.
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 - `AuthenticationError`: This usually means the API key in `.env` is missing, invalid, or typoed. Verify `OPENAI_API_KEY` and restart the app.
 - `No extractable text found`: The PDF is likely a scanned image rather than selectable text. Run OCR first (for example with `pymupdf` workflows or Adobe Acrobat), then re-upload.
 - ChromaDB `OSError: permission denied` on `chroma_store`: Check filesystem permissions on the store directory, or set a writable `CHROMA_PERSIST_DIR` in `config.py`.
