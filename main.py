@@ -66,14 +66,29 @@ def process_documents(uploaded_files: list) -> None:
                 handle.write(uploaded_file.getbuffer())
             temp_paths.append(file_path)
 
-        try:
-            docs = load_documents(temp_paths)
-        except ValueError as error:
-            st.error(str(error))
+        docs = []
+        skipped_errors = []
+        for path in temp_paths:
+            try:
+                docs.extend(load_documents([path]))
+            except ValueError as error:
+                skipped_errors.append(str(error))
+
+        if not docs:
+            st.session_state["vectorstore"] = None
+            st.session_state["chain"] = None
+            for error in skipped_errors:
+                st.error(error)
             st.stop()
 
+        for error in skipped_errors:
+            st.warning(f"Skipped file: {error}")
+
         chunks = split_documents(docs)
-        st.success(f"Processed {len(chunks)} chunks from {len(uploaded_files)} file(s).")
+        processed_count = len(uploaded_files) - len(skipped_errors)
+        st.success(
+            f"Processed {len(chunks)} chunks from {processed_count} file(s)."
+        )
 
         try:
             vectorstore = embed_and_store(chunks)

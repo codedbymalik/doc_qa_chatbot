@@ -40,12 +40,33 @@ def format_docs(docs: list) -> str:
 def create_chain(retriever) -> "Runnable":
     answer_chain = build_prompt() | ChatOpenAI(model=LLM_MODEL) | StrOutputParser()
 
+    def retrieve_documents(query: str):
+        docs = retriever.invoke(query)
+        if docs:
+            return docs
+
+        vectorstore = getattr(retriever, "vectorstore", None)
+        if vectorstore is None:
+            return docs
+
+        fallback_retriever = vectorstore.as_retriever(
+            search_type="similarity",
+            search_kwargs={"k": RETRIEVER_K},
+        )
+        return fallback_retriever.invoke(query)
+
     chain = (
         RunnableMap(
             {
-                "context": retriever | format_docs,
                 "question": RunnablePassthrough(),
-                "source_documents": retriever,
+                "source_documents": retrieve_documents,
+            }
+        )
+        | RunnableMap(
+            {
+                "context": lambda data: format_docs(data["source_documents"]),
+                "question": lambda data: data["question"],
+                "source_documents": lambda data: data["source_documents"],
             }
         )
         | RunnableMap(
